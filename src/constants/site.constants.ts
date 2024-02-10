@@ -29,11 +29,7 @@ const site: SiteConfig = {
       components: [
         {
           componentName: 'DynamicTranscribeForm',
-          fields: ['Access Key', 'Secret Access Key'],
-        },
-        {
-          componentName: 'DynamicTranscribeForm',
-          fields: ['language', 'region'],
+          fields: ['language'],
         },
       ],
     },

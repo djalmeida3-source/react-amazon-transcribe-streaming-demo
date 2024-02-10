@@ -13,6 +13,12 @@ import logger from '../utils/logger';
 import EncodePcmStream from './streams/EncodePcmStream';
 
 class TranscribeController extends EventEmitter {
+  private readonly awsRegion: string;
+
+  private readonly awsAccessKeyId: string;
+
+  private readonly awsSecretAccessKey: string;
+
   private audioStream: MicrophoneStream | null;
 
   private rawMediaStream: MediaStream | null;
@@ -27,6 +33,9 @@ class TranscribeController extends EventEmitter {
 
   constructor() {
     super();
+    this.awsRegion = process.env.REACT_APP_AWS_REGION || 'eu-west-1';
+    this.awsAccessKeyId = process.env.REACT_APP_AWS_ACCESS_KEY_ID || '';
+    this.awsSecretAccessKey = process.env.REACT_APP_AWS_SECRET_ACCESS_KEY || '';
 
     this.audioStream = null;
     this.rawMediaStream = null;
@@ -42,11 +51,9 @@ class TranscribeController extends EventEmitter {
     this.transcribeConfig = transcribeConfig;
   }
 
+  // tslint:disable-next-line:class-methods-use-this
   validateConfig() {
-    if (
-      !this.transcribeConfig?.accessKey ||
-      !this.transcribeConfig.secretAccessKey
-    ) {
+    if (!this.awsAccessKeyId || !this.awsSecretAccessKey) {
       throw new Error(
         'missing required config: access key and secret access key are required',
       );
@@ -58,7 +65,6 @@ class TranscribeController extends EventEmitter {
     if (!this.transcribeConfig) {
       throw new Error('transcribe config is not set');
     }
-
     logger.info('transcribe config', this.transcribeConfig);
     this.validateConfig();
 
@@ -82,10 +88,10 @@ class TranscribeController extends EventEmitter {
 
     // creating and setting up transcribe client
     const config = {
-      region: this.transcribeConfig.region,
+      region: this.awsRegion,
       credentials: {
-        accessKeyId: this.transcribeConfig.accessKey,
-        secretAccessKey: this.transcribeConfig.secretAccessKey,
+        accessKeyId: this.awsAccessKeyId,
+        secretAccessKey: this.awsSecretAccessKey,
       },
     };
     logger.info('setting up transcribe client with config', config);
